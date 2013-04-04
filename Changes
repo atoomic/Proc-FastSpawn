@@ -1,5 +1,10 @@
 Revision history for Perl extension Proc::FastSpawn
 
+0.2  Thu Apr  4 08:24:32 CEST 2013
+        - define _WIN32_WINNT to windows xp, to make sure
+          we get the GetProcessId prototype.
+	- add synopsis section with some examples.
+
 0.1   Sat Mar 30 02:16:48 CET 2013
 	- intiial CPAN release.
 

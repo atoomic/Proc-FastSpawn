@@ -1,3 +1,7 @@
+/* GetProcessId is XP and up, which means in all supported versions */
+/* but older SDK's might need this */
+#define _WIN32_WINNT NTDDI_WINXP
+
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -6,6 +10,7 @@
 
 #ifdef WIN32
 
+  /* perl probably did this already */
   #include <windows.h>
 
 #else
@@ -97,7 +102,7 @@ spawn (const char *path, SV *argv, SV *envp = &PL_sv_undef)
 
         /* do it like perl, dadadoop dadadoop */
         w32_child_handles [w32_num_children] = (HANDLE)pid;
-        pid =  GetProcessId ((HANDLE)pid); /* get the real pid */
+        pid =  GetProcessId ((HANDLE)pid); /* get the real pid, unfortunately, requires wxp or newer */
         w32_child_pids [w32_num_children] = pid;
         ++w32_num_children;
 #elif USE_SPAWN

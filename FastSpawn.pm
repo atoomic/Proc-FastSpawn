@@ -4,7 +4,22 @@ Proc::FastSpawn - fork+exec, or spawn, a subprocess as quickly as possible
 
 =head1 SYNOPSIS
 
- use Proc::FastSpawn;
+   use Proc::FastSpawn;
+
+   # simple use
+   my $pid = spawn "/bin/echo", ["echo", "hello, world"];
+   ...
+   waitpid $pid, 0;
+
+   # with environment
+   my $pid = spawn "/bin/echo", ["echo", "hello, world"], ["PATH=/bin", "HOME=/tmp"];
+
+   # inheriting file descriptors
+   pipe R, W or die;
+   fd_inherit fileno W;
+   my $pid = spawn "/bin/sh", ["sh", "-c", "echo a pipe >&" . fileno W];
+   close W;
+   print <R>;
 
 =head1 DESCRIPTION
 
@@ -68,7 +83,7 @@ sub _quote {
 }
 
 BEGIN {
-   $VERSION = '0.1';
+   $VERSION = '0.2';
 
    our @ISA = qw(Exporter);
    our @EXPORT = qw(spawn fd_inherit);
@@ -102,7 +117,7 @@ or not C<$on> is false).
 
 On POSIX systems, this module currently calls vfork+exec, spawn, or
 fork+exec, depending on the platform. If your platform has a good vfork or
-spawn but is misdetected and falls back on slow fork+exec, drop me a note.
+spawn but is misdetected and falls back to slow fork+exec, drop me a note.
 
 On win32, the C<_spawn> family of functions is used, and the module tries
 hard to patch the new process into perl's internal pid table, so the pid
@@ -110,7 +125,7 @@ returned should work with other perl functions such as waitpid. Also,
 win32 doesn't have a meaningful way to quote arguments containing
 "special" characters, so this module tries it's best to quote those
 strings itself. Other typical platform limitations (such as being able to
-only have 64 or so subprocesses) apply as well.
+only have 64 or so subprocesses) are not worked around.
 
 =head1 AUTHOR
 
@@ -119,5 +134,5 @@ only have 64 or so subprocesses) apply as well.
 
 =cut
 
-1;
+1
 
