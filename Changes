@@ -1,5 +1,9 @@
 Revision history for Perl extension Proc::FastSpawn
 
+1.0  Sun Apr  7 03:32:54 CEST 2013
+	- work around corrupted $^X on openbsd, when linked against
+          libpthread (only affects a testcase).
+
 0.2  Thu Apr  4 08:24:32 CEST 2013
         - define _WIN32_WINNT to windows xp, to make sure
           we get the GetProcessId prototype.

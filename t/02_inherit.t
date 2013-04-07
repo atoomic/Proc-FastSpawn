@@ -7,7 +7,11 @@ print +(pipe R, W) ? "" : "not ", "ok 1\n";
 fd_inherit fileno R, 0;
 fd_inherit fileno W, 1;
 
-my $pid = spawn $^X, [
+# OpenBSD has a corrupted $^X when linking aaginst -lpthread
+# so use Config instead.
+use Config;
+
+my $pid = spawn $Config{perlpath}, [
    qw(perl -e),
    '
       my $gr = (open my $r, "<&" . $ARGV[0]) ? 1 : 0;

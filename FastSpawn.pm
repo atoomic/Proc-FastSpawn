@@ -41,11 +41,11 @@ So when is fork+exec not fast enough, how can you do it faster, and why
 would it matter?
 
 Forking a process requires making a complete copy of a process. Even
-thougth almost every implementation only copies page tables and not the
-memory istelf, this is still not free. For example, on my 3.6GHz amd64
-box, I can fork a 5GB process only twenty times a second. For a realtime
+thought almost every implementation only copies page tables and not the
+memory itself, this is still not free. For example, on my 3.6GHz amd64
+box, I can fork a 5GB process only twenty times a second. For a real-time
 process that must meet stricter deadlines, this is too slow. For a busy
-and big webserver, starting CGI scripts might mean unacceptable overhead.
+and big web server, starting CGI scripts might mean unacceptable overhead.
 
 A workaround is to use C<vfork> - this function isn't very portable, but
 it avoids the memory copy that C<fork> has to do. Some systems have an
@@ -83,7 +83,7 @@ sub _quote {
 }
 
 BEGIN {
-   $VERSION = '0.2';
+   $VERSION = '1.0';
 
    our @ISA = qw(Exporter);
    our @EXPORT = qw(spawn fd_inherit);
@@ -105,11 +105,15 @@ as C<undef>, or via a subprocess exit status of C<127>.
 
 =item fd_inherit $fileno[, $on]
 
-File descriptors can be inherited by the spawned proceses or not. This is
+File descriptors can be inherited by the spawned processes or not. This is
 decided on a per file descriptor basis. This module does nothing to any
 preexisting handles, but with this call, you can change the state of a
 single file descriptor to either be inherited (C<$on> is true or missing)
 or not C<$on> is false).
+
+Free portability pro-tip: it seems native win32 perls ignore $^F and set
+all file handles to be inherited by default - but this function can switch
+it off.
 
 =back
 
@@ -121,7 +125,7 @@ spawn but is misdetected and falls back to slow fork+exec, drop me a note.
 
 On win32, the C<_spawn> family of functions is used, and the module tries
 hard to patch the new process into perl's internal pid table, so the pid
-returned should work with other perl functions such as waitpid. Also,
+returned should work with other Perl functions such as waitpid. Also,
 win32 doesn't have a meaningful way to quote arguments containing
 "special" characters, so this module tries it's best to quote those
 strings itself. Other typical platform limitations (such as being able to

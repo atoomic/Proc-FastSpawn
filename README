@@ -39,12 +39,12 @@ DESCRIPTION
     would it matter?
 
     Forking a process requires making a complete copy of a process. Even
-    thougth almost every implementation only copies page tables and not the
-    memory istelf, this is still not free. For example, on my 3.6GHz amd64
-    box, I can fork a 5GB process only twenty times a second. For a realtime
-    process that must meet stricter deadlines, this is too slow. For a busy
-    and big webserver, starting CGI scripts might mean unacceptable
-    overhead.
+    thought almost every implementation only copies page tables and not the
+    memory itself, this is still not free. For example, on my 3.6GHz amd64
+    box, I can fork a 5GB process only twenty times a second. For a
+    real-time process that must meet stricter deadlines, this is too slow.
+    For a busy and big web server, starting CGI scripts might mean
+    unacceptable overhead.
 
     A workaround is to use "vfork" - this function isn't very portable, but
     it avoids the memory copy that "fork" has to do. Some systems have an
@@ -71,11 +71,15 @@ FUNCTIONS
         not be reported as "undef", or via a subprocess exit status of 127.
 
     fd_inherit $fileno[, $on]
-        File descriptors can be inherited by the spawned proceses or not.
+        File descriptors can be inherited by the spawned processes or not.
         This is decided on a per file descriptor basis. This module does
         nothing to any preexisting handles, but with this call, you can
         change the state of a single file descriptor to either be inherited
         ($on is true or missing) or not $on is false).
+
+        Free portability pro-tip: it seems native win32 perls ignore $^F and
+        set all file handles to be inherited by default - but this function
+        can switch it off.
 
 PORTABILITY NOTES
     On POSIX systems, this module currently calls vfork+exec, spawn, or
@@ -85,7 +89,7 @@ PORTABILITY NOTES
 
     On win32, the "_spawn" family of functions is used, and the module tries
     hard to patch the new process into perl's internal pid table, so the pid
-    returned should work with other perl functions such as waitpid. Also,
+    returned should work with other Perl functions such as waitpid. Also,
     win32 doesn't have a meaningful way to quote arguments containing
     "special" characters, so this module tries it's best to quote those
     strings itself. Other typical platform limitations (such as being able
