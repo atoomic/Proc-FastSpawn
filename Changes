@@ -1,5 +1,8 @@
 Revision history for Perl extension Proc::FastSpawn
 
+1.1  Sun Apr 28 02:47:31 CEST 2013
+	- add spawnp function for convenience.
+
 1.0  Sun Apr  7 03:32:54 CEST 2013
 	- work around corrupted $^X on openbsd, when linked against
           libpthread (only affects a testcase).

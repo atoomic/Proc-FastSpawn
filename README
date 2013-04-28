@@ -70,6 +70,10 @@ FUNCTIONS
         "undef" is currently returned. Failure to execution might or might
         not be reported as "undef", or via a subprocess exit status of 127.
 
+    $pid = spawnp $file, \@argv[, \@envp]
+        Like "spawn", but searches $file in $ENV{PATH} like the shell would
+        do.
+
     fd_inherit $fileno[, $on]
         File descriptors can be inherited by the spawned processes or not.
         This is decided on a per file descriptor basis. This module does

@@ -69,6 +69,8 @@ BOOT:
 
 long
 spawn (const char *path, SV *argv, SV *envp = &PL_sv_undef)
+	ALIAS:
+        spawnp = 1
         INIT:
 {
 #ifdef WIN32
@@ -95,7 +97,7 @@ spawn (const char *path, SV *argv, SV *envp = &PL_sv_undef)
 
         fflush (0);
 #ifdef WIN32
-        pid = _spawnve (_P_NOWAIT, path, cargv, cenvp);
+        pid = (ix ? _spawnvpe : _spawnve) (_P_NOWAIT, path, cargv, cenvp);
 
         if (pid == -1)
           XSRETURN_UNDEF;
@@ -109,7 +111,7 @@ spawn (const char *path, SV *argv, SV *envp = &PL_sv_undef)
         {
           pid_t xpid;
 
-          errno = posix_spawn (&xpid, path, 0, 0, cargv, cenvp);
+          errno = (ix ? posix_spawnp : posix_spawn) (&xpid, path, 0, 0, cargv, cenvp);
 
           if (errno)
             XSRETURN_UNDEF;
@@ -117,16 +119,24 @@ spawn (const char *path, SV *argv, SV *envp = &PL_sv_undef)
           pid = xpid;
         }
 #else
-        pid = vfork ();
+        {
+          char **old_environ = environ;
+          environ = (char **)cenvp;
 
-        if (pid < 0)
-          XSRETURN_UNDEF;
+          pid = vfork ();
 
-        if (pid == 0)
-          {
-            execve (path, cargv, cenvp);
-            _exit (127);
-          }
+          if (pid)
+            environ = old_environ;
+
+          if (pid < 0)
+            XSRETURN_UNDEF;
+
+          if (pid == 0)
+            {
+              (ix ? execvp : execv) (path, cargv);
+              _exit (127);
+            }
+        }
 #endif
 
         RETVAL = pid;
@@ -141,3 +151,4 @@ fd_inherit (int fd, int on = 1)
 #else
         fcntl (fd, F_SETFD, on ? 0 : FD_CLOEXEC);
 #endif
+

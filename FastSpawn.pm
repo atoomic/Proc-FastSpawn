@@ -83,10 +83,10 @@ sub _quote {
 }
 
 BEGIN {
-   $VERSION = '1.0';
+   $VERSION = '1.1';
 
    our @ISA = qw(Exporter);
-   our @EXPORT = qw(spawn fd_inherit);
+   our @EXPORT = qw(spawn spawnp fd_inherit);
    require Exporter;
 
    require XSLoader;
@@ -102,6 +102,11 @@ calling fork + execv, or execve.
 Returns the PID of the new process if successful. On any error, C<undef>
 is currently returned. Failure to execution might or might not be reported
 as C<undef>, or via a subprocess exit status of C<127>.
+
+=item $pid = spawnp $file, \@argv[, \@envp]
+
+Like C<spawn>, but searches C<$file> in C<$ENV{PATH}> like the shell would
+do.
 
 =item fd_inherit $fileno[, $on]
 
