@@ -83,7 +83,7 @@ sub _quote {
 }
 
 BEGIN {
-   $VERSION = '1.1';
+   $VERSION = '1.2';
 
    our @ISA = qw(Exporter);
    our @EXPORT = qw(spawn spawnp fd_inherit);

@@ -48,10 +48,10 @@ array_to_cvec (SV *sv)
 
   av = (AV *)SvRV (sv);
   n = av_len (av) + 1;
-  cvec = (char **)SvPVX (sv_2mortal (NEWSV (0, sizeof (char *) * n + 1)));
+  cvec = (char **)SvPVX (sv_2mortal (NEWSV (0, sizeof (char *) * (n + 1))));
 
   for (i = 0; i < n; ++i)
-    cvec [i] = SvPVbyte_nolen (*av_fetch (av, i, 11));
+    cvec [i] = SvPVbyte_nolen (*av_fetch (av, i, 1));
 
   cvec [n] = 0;
 
@@ -104,7 +104,7 @@ spawn (const char *path, SV *argv, SV *envp = &PL_sv_undef)
 
         /* do it like perl, dadadoop dadadoop */
         w32_child_handles [w32_num_children] = (HANDLE)pid;
-        pid =  GetProcessId ((HANDLE)pid); /* get the real pid, unfortunately, requires wxp or newer */
+        pid = GetProcessId ((HANDLE)pid); /* get the real pid, unfortunately, requires wxp or newer */
         w32_child_pids [w32_num_children] = pid;
         ++w32_num_children;
 #elif USE_SPAWN
@@ -119,24 +119,23 @@ spawn (const char *path, SV *argv, SV *envp = &PL_sv_undef)
           pid = xpid;
         }
 #else
-        {
-          char **old_environ = environ;
-          environ = (char **)cenvp;
+        pid = (ix ? fork : vfork) ();
 
-          pid = vfork ();
+        if (pid < 0)
+          XSRETURN_UNDEF;
 
-          if (pid)
-            environ = old_environ;
+        if (pid == 0)
+          {
+            if (ix)
+              {
+                environ = (char **)cenvp;
+                execvp (path, cargv);
+              }
+            else
+              execve (path, cargv, cenvp);
 
-          if (pid < 0)
-            XSRETURN_UNDEF;
-
-          if (pid == 0)
-            {
-              (ix ? execvp : execv) (path, cargv);
-              _exit (127);
-            }
-        }
+            _exit (127);
+          }
 #endif
 
         RETVAL = pid;
